@@ -796,7 +796,22 @@ const handleTopMrByDoctor = async (req, res) => {
 
 const handleTop20Mr = async (req, res) => {
   try {
+    const adminId = req.params.adminId; // Extract Admin ID from request parameters
+    console.log('adminId', adminId);
+    // Query the Admin collection to find the Admin document by Admin ID
+    const admin = await AdminModel.findById(adminId).populate('Mrs');
+    console.log('admin', admin);
+    if (!admin) {
+      return res.status(404).json({ msg: "Admin not found" });
+    }
+
+    const mrIds = admin.Mrs.map(mr => mr._id); // Extract MR IDs from the Admin document
+
+    // Use MR IDs obtained from the Admin document in the aggregation pipeline
     const top20MRS = await mrModel.aggregate([
+      {
+        $match: { _id: { $in: mrIds } }
+      },
       {
         $lookup: {
           from: "quizzes",
@@ -819,7 +834,7 @@ const handleTop20Mr = async (req, res) => {
       {
         $project: {
           USERNAME: 1,
-          ZONE: 1, // Include ZONE field
+          ZONE: 1,
           REGION: 1,
           HQ: 1,
           totalDoctors: 1,

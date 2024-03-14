@@ -21,7 +21,7 @@ router.get("/v3/get-all-doctor-mrs-data", handleAllMrDoctorsDataV3);
 router.post("/forget-mr-password", handleForgetPassword);
 router.get("/top-mr-by-doctor", handleTopMrByDoctor);
 router.get("/top-category-chart", handleTopCategoryChart);
-router.get("/get-top-20-mrs", handleTop20Mr);
+router.get("/get-top-20-mrs/:adminId", handleTop20Mr);
 router.get("/mr-all-region", handleMrsRegion);
 router.get("/admin-mrs/:id", handleAdminMrs);
 router.get("/get-mr-by-id/:id", handleGetMrById);
