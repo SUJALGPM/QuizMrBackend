@@ -680,49 +680,49 @@ const handleTopMrByDoctor = async (req, res) => {
   }
 };
 
-const handleTop20Mr = async (req, res) => {
-  try {
-    const top20MRS = await mrModel.aggregate([
-      {
-        $lookup: {
-          from: "quizzes",
-          localField: "_id",
-          foreignField: "mrReference",
-          as: "doctors",
-        },
-      },
-      {
-        $addFields: {
-          totalDoctors: { $size: "$doctors" },
-        },
-      },
-      {
-        $sort: { totalDoctors: -1 },
-      },
-      {
-        $limit: 20,
-      },
-      {
-        $project: {
-          USERNAME: 1,
-          MRID: 1,
-          REGION: 1,
-          HQ: 1,
-          totalDoctors: 1,
-        },
-      },
-    ]);
+// const handleTop20Mr = async (req, res) => {
+//   try {
+//     const top20MRS = await mrModel.aggregate([
+//       {
+//         $lookup: {
+//           from: "quizzes",
+//           localField: "_id",
+//           foreignField: "mrReference",
+//           as: "doctors",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           totalDoctors: { $size: "$doctors" },
+//         },
+//       },
+//       {
+//         $sort: { totalDoctors: -1 },
+//       },
+//       {
+//         $limit: 20,
+//       },
+//       {
+//         $project: {
+//           USERNAME: 1,
+//           MRID: 1,
+//           REGION: 1,
+//           HQ: 1,
+//           totalDoctors: 1,
+//         },
+//       },
+//     ]);
 
-    res.send(top20MRS);
-  } catch (error) {
-    console.log("Error in handleTop20Mr", error);
-    let err = error.message;
-    return res.status(500).json({
-      msg: "Internal Server Error",
-      err,
-    });
-  }
-};
+//     res.send(top20MRS);
+//   } catch (error) {
+//     console.log("Error in handleTop20Mr", error);
+//     let err = error.message;
+//     return res.status(500).json({
+//       msg: "Internal Server Error",
+//       err,
+//     });
+//   }
+// };
 
 // const handleUpload = async (req, res) => {
 //     try {
@@ -793,6 +793,50 @@ const handleTop20Mr = async (req, res) => {
 //         })
 //     }
 // }
+
+const handleTop20Mr = async (req, res) => {
+  try {
+    const top20MRS = await mrModel.aggregate([
+      {
+        $lookup: {
+          from: "quizzes",
+          localField: "_id",
+          foreignField: "mrReference",
+          as: "doctors",
+        },
+      },
+      {
+        $addFields: {
+          totalDoctors: { $size: "$doctors" },
+        },
+      },
+      {
+        $sort: { totalDoctors: -1 },
+      },
+      {
+        $limit: 20,
+      },
+      {
+        $project: {
+          USERNAME: 1,
+          ZONE: 1, // Include ZONE field
+          REGION: 1,
+          HQ: 1,
+          totalDoctors: 1,
+        },
+      },
+    ]);
+
+    res.send(top20MRS);
+  } catch (error) {
+    console.log("Error in handleTop20Mr", error);
+    let err = error.message;
+    return res.status(500).json({
+      msg: "Internal Server Error",
+      err,
+    });
+  }
+};
 
 const handleUpload = async (req, res) => {
   try {
