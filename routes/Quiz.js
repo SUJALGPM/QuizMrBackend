@@ -19,7 +19,7 @@ router.get("/get/leaderboard/:categoryName/:mrId", handleLeaderFilterByCategoryN
 router.get("/get/users-name-state-city", handleUsersStateAndName);
 router.post('/get/get-only-name-with-id', handleOnlyNameWithId);
 router.get("/get/user-category/:userId", handleUserCategory);
-router.get("/get/user-category-with-mulquestions-fourquestions/:userId", handleUserCategoryWithQuestion);
+router.get("/get/user-category-with-mulquestions-fourquestions/:mrId", handleUserCategoryWithQuestion);
 
 
 // get all current month doctor and old doctor list

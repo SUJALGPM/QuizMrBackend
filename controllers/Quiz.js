@@ -464,54 +464,144 @@ exports.handleUserCategory = async (req, res) => {
   }
 };
 
+// exports.handleUserCategoryWithQuestion = async (req, res) => {
+//   const { userId } = req.params;
+
+//   try {
+//     if (!userId) {
+//       return res.status(401).json({
+//         msg: "User Id Required",
+//       });
+//     }
+//     const user = await Quiz.findById(userId).select("quizCategories").lean();
+//     if (!user) {
+//       return res.status(401).json({
+//         msg: "No Game Category Found",
+//       });
+//     }
+
+//     const userCategories = user.quizCategories;
+//     const formattedCategories = [];
+//     for (const category of userCategories) {
+//       formattedCategories.push({
+//         categoryName: category.categoryName,
+//         isPlayed: category.isPlayed,
+//         TotalPoints: category.TotalPoints,
+//       });
+//     }
+
+//     let OnlyActiveCategories = [];
+//     try {
+//       const response = await axios.get(
+//         "https://quizadminbackend-wg1y.onrender.com/onlyactivecategories"
+//       );
+//       OnlyActiveCategories = response.data;
+//     } catch (error) {
+//       console.error(error);
+//     }
+
+//     const onlyFourActiveQuestions = [];
+
+//     await Promise.all(
+//       OnlyActiveCategories.map(async (Category) => {
+//         let category = Category.name;
+//         console.log({ category });
+
+//         try {
+//           const response = await axios.get(
+//             `https://quizadminbackend-wg1y.onrender.com/api/questionsfour?category=${category}`
+//           );
+//           onlyFourActiveQuestions.push(response.data);
+//         } catch (error) {
+//           console.error(error);
+//         }
+//       })
+//     );
+
+//     let MultipleQuestions = [];
+//     try {
+//       const response = await axios.get(
+//         "https://quizadminbackend-wg1y.onrender.com/api/questions"
+//       );
+//       MultipleQuestions = response.data;
+//     } catch (error) {
+//       console.error(error);
+//     }
+
+//     return res
+//       .status(200)
+//       .json({
+//         formattedCategories,
+//         OnlyActiveCategories,
+//         onlyFourActiveQuestions,
+//         MultipleQuestions,
+//       });
+//   } catch (error) {
+//     const err = error.message;
+//     console.error(error);
+//     return res.status(500).json({
+//       msg: "Internal Server Error",
+//       err,
+//     });
+//   }
+// };
+
 exports.handleUserCategoryWithQuestion = async (req, res) => {
-  const { userId } = req.params;
+  const { mrId } = req.params;
 
   try {
-    if (!userId) {
+    if (!mrId) {
       return res.status(401).json({
-        msg: "User Id Required",
-      });
-    }
-    const user = await Quiz.findById(userId).select("quizCategories").lean();
-    if (!user) {
-      return res.status(401).json({
-        msg: "No Game Category Found",
+        msg: "MR ID Required",
       });
     }
 
-    const userCategories = user.quizCategories;
-    const formattedCategories = [];
-    for (const category of userCategories) {
-      formattedCategories.push({
-        categoryName: category.categoryName,
-        isPlayed: category.isPlayed,
-        TotalPoints: category.TotalPoints,
+    const mr = await mrModel.findById(mrId).lean();
+
+    if (!mr) {
+      return res.status(401).json({
+        msg: "No MR Found with this ID",
       });
     }
+
+    const mrID = await mr._id;
+    console.log("Doctor IDs : ", mrID);
+
+    const doctor = await Quiz.findOne({ mrReference: mrID }).lean().populate('quizCategories');
+    console.log("Doctor under MR :", mrID);
+
+    if (!doctor) {
+      return res.status(401).json({
+        msg: "No Doctor Found for this MR", // Updated message for doctor not found
+      });
+    }
+
+    const formattedCategories = doctor.quizCategories.map((category) => ({
+      categoryName: category.categoryName,
+      isPlayed: category.isPlayed,
+      TotalPoints: category.TotalPoints,
+    }));
 
     let OnlyActiveCategories = [];
     try {
       const response = await axios.get(
-        "https://backup-quiz-server.onrender.com/onlyactivecategories"
+        "https://quizadminbackend-wg1y.onrender.com/onlyactivecategories"
       );
       OnlyActiveCategories = response.data;
     } catch (error) {
       console.error(error);
     }
 
-    const onlyFourActiveQuestions = [];
-
-    await Promise.all(
+    const onlyFourActiveQuestions = await Promise.all(
       OnlyActiveCategories.map(async (Category) => {
-        let category = Category.name;
+        const category = Category.name;
         console.log({ category });
 
         try {
           const response = await axios.get(
-            `https://backup-quiz-server.onrender.com/api/questionsfour?category=${category}`
+            `https://quizadminbackend-wg1y.onrender.com/api/questionsfour?category=${category}`
           );
-          onlyFourActiveQuestions.push(response.data);
+          return response.data; // Return the data directly
         } catch (error) {
           console.error(error);
         }
@@ -521,7 +611,7 @@ exports.handleUserCategoryWithQuestion = async (req, res) => {
     let MultipleQuestions = [];
     try {
       const response = await axios.get(
-        "https://backup-quiz-server.onrender.com/api/questions"
+        "https://quizadminbackend-wg1y.onrender.com/api/questions"
       );
       MultipleQuestions = response.data;
     } catch (error) {
@@ -545,7 +635,6 @@ exports.handleUserCategoryWithQuestion = async (req, res) => {
     });
   }
 };
-
 
 exports.handleDoctorStatus = async (req, res) => {
   try {
