@@ -407,7 +407,7 @@ exports.handleOnlyNameWithId = async (req, res) => {
   try {
     const { mrId } = req.body;
     const doctors = await Quiz.find({ mrReference: mrId }).select(
-      "_id doctorName scCode locality "
+      "_id doctorName scCode city speciality state email pincode"
     );
     if (!doctors || doctors.length === 0) {
       return res.status(404).json({
