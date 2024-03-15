@@ -565,22 +565,22 @@ exports.handleUserCategoryWithQuestion = async (req, res) => {
     }
 
     const mrID = await mr._id;
-    console.log("Doctor IDs : ", mrID);
+    console.log("MR IDs : ", mrID);
 
-    const doctor = await Quiz.findOne({ mrReference: mrID }).lean().populate('quizCategories');
-    console.log("Doctor under MR :", mrID);
+    // const doctor = await Quiz.findOne({ mrReference: mrID }).lean().populate('quizCategories');
+    // console.log("Doctor under MR :", doctor);
 
-    if (!doctor) {
-      return res.status(401).json({
-        msg: "No Doctor Found for this MR", // Updated message for doctor not found
-      });
-    }
+    // if (!doctor) {
+    //   return res.status(401).json({
+    //     msg: "No Doctor Found for this MR", 
+    //   });
+    // }
 
-    const formattedCategories = doctor.quizCategories.map((category) => ({
-      categoryName: category.categoryName,
-      isPlayed: category.isPlayed,
-      TotalPoints: category.TotalPoints,
-    }));
+    // const formattedCategories = doctor.quizCategories.map((category) => ({
+    //   categoryName: category.categoryName,
+    //   isPlayed: category.isPlayed,
+    //   TotalPoints: category.TotalPoints,
+    // }));
 
     let OnlyActiveCategories = [];
     try {
@@ -621,7 +621,7 @@ exports.handleUserCategoryWithQuestion = async (req, res) => {
     return res
       .status(200)
       .json({
-        formattedCategories,
+        // formattedCategories,
         OnlyActiveCategories,
         onlyFourActiveQuestions,
         MultipleQuestions,
