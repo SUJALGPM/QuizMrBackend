@@ -2,29 +2,84 @@ const Quiz = require("../models/Quiz");
 const mrModel = require("../models/Mr");
 const axios = require("axios");
 
+// exports.postDrData = async (req, res) => {
+//   const { doctorName, speciality, email, city, state, mrId, scCode, locality, pincode, date } = req.body;
+
+//   let mr = await mrModel.findById({ _id: mrId });
+//   if (!mr) return res.status(400).json({ msg: "MR Not Found" });
+//   let doctor = await Quiz.findOne({ scCode });
+//   if (doctor) return res.status(400).json({ msg: "Same ScCODE is find in the database" });
+
+
+
+//   try {
+
+//     const docterEmailCheck = await Quiz.findOne({ email: email });
+//     if (doctorEmailCheck) {
+//       return res.status(501).send({ message: "Doctor Email must be unqiue", success: false });
+//     }
+
+//     const newDoctor = new Quiz({
+//       doctorName: doctorName,
+//       speciality: speciality,
+//       email: email,
+//       city: city,
+//       state: state,
+//       scCode: scCode,
+//       locality: locality,
+//       pincode: pincode,
+//       doc: date ? new Date(date) : Date.now(),
+//       mrReference: mr._id,
+//     });
+
+//     const data = await newDoctor.save();
+//     const Id = data._id;
+//     return res.status(201).json({
+//       message: "Doctor data inserted",
+//       Id,
+//       data: data
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
 exports.postDrData = async (req, res) => {
+
   const { doctorName, speciality, email, city, state, mrId, scCode, locality, pincode, date } = req.body;
+
+  // // Validate email format
+  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // if (!emailRegex.test(email)) {
+  //   return res.status(400).json({ msg: "Invalid email format" });
+  // }
 
   let mr = await mrModel.findById({ _id: mrId });
   if (!mr) return res.status(400).json({ msg: "MR Not Found" });
+
   let doctor = await Quiz.findOne({ scCode });
-  if (doctor) return res.status(400).json({ msg: "Same Mobile Number is find in the database" });
-
-
-  const newDoctor = new Quiz({
-    doctorName: doctorName,
-    speciality: speciality,
-    email: email,
-    city: city,
-    state: state,
-    scCode: scCode,
-    locality: locality,
-    pincode: pincode,
-    doc: date ? new Date(date) : Date.now(),
-    mrReference: mr._id,
-  });
+  if (doctor) return res.status(400).json({ msg: "Same ScCODE is found in the database" });
 
   try {
+    const doctorEmailCheck = await Quiz.findOne({ email: email });
+    if (doctorEmailCheck) {
+      return res.status(501).send({ message: "Doctor Email must be unique", success: false });
+    }
+
+    const newDoctor = new Quiz({
+      doctorName: doctorName,
+      speciality: speciality,
+      email: email,
+      city: city,
+      state: state,
+      scCode: scCode,
+      locality: locality,
+      pincode: pincode,
+      doc: date ? new Date(date) : Date.now(),
+      mrReference: mr._id,
+    });
+
     const data = await newDoctor.save();
     const Id = data._id;
     return res.status(201).json({
@@ -36,7 +91,8 @@ exports.postDrData = async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
-};
+
+}
 
 exports.getDoctorName = async (req, res) => {
   try {
