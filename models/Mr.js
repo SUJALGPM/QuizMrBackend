@@ -17,8 +17,8 @@ const mrSchema = new mongosoe.Schema({
     },
     EMAIL: {
         type: String,
+        unique: true,
         // required: true,
-        // unique: true,
     },
     ACNAME: {
         type: String,

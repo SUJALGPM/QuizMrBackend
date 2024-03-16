@@ -18,8 +18,11 @@ const doctorSchema = mongoose.Schema({
   locality: String,
   speciality: String,
 
-  email:String,
-  pincode:String,
+  email: {
+    type: String,
+    unique: true
+  },
+  pincode: String,
 
   doc: Date,
   mrReference: {
