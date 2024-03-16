@@ -4,6 +4,7 @@ const fs = require("fs");
 const csv = require("csv-parser");
 const xlsx = require("xlsx");
 const sendMail = require("../utility/sendMail");
+var nodemailer = require('nodemailer');
 const { maskEmail } = require("../utility/maskEmail");
 const AdminModel = require("../models/admin");
 
@@ -87,8 +88,12 @@ const createMr = async (req, res) => {
     mr = await mrModel.findOne({ USERNAME: USERNAME });
 
 
-    if (mr)
-      return res.status(400).json({ msg: "MRUSERNAME is already Exists", USERNAME });
+    if (mr) return res.status(400).json({ msg: "MRUSERNAME is already Exists", USERNAME });
+
+    const mrExistEmail = await mrModel.findOne({ EMAIL: EMAIL });
+    if (mrExistEmail) {
+      return res.status(501).send({ message: "MR with same email found in database..!!", success: false });
+    }
 
     mr = new mrModel({ USERNAME, MRID, PASSWORD, EMAIL, ACNAME, ROLE, HQ, REGION, ZONE, BUSINESSUNIT, DOJ });
 
@@ -568,40 +573,54 @@ const handleAllMrDoctorsDataV3 = async (req, res) => {
 
 const handleForgetPassword = async (req, res) => {
   try {
-    const mrId = req.body.mrId;
-    const mr = await mrModel.findOne({ MRID: mrId });
-    if (!mr) {
-      return res.status(400).json({
-        success: false,
-        msg: "Mr Not Found",
-      });
+    const { userName } = req.body;
+    const mrExist = await mrModel.findOne({ USERNAME: userName });
+
+    if (!mrExist) {
+      return res.status(404).send({ message: "MR Not found...!!!", success: false });
     }
 
-    const message = `
-        Hello , ${mr.USERNAME} Your Password For Quiz Application is ${mr.PASSWORD}.
-        `;
+    // Send the password directly via email
+    const password = mrExist.PASSWORD;
+    const email = mrExist.EMAIL;
 
-    const messageToBeSend = await sendMail(
-      mr.EMAIL,
-      "Quiz Application Password",
-      message
-    );
-
-    console.log({ messageToBeSend });
-
-    const mrMail = maskEmail(mr.EMAIL);
-    return res.status(200).json({
-      success: true,
-      mrMail: mrMail,
-      msg: `Password is send on mail ${mrMail}, Check Junk And SPAM Folder`,
+    // NodeMailer Configuration
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'digilateraldev@gmail.com',
+        pass: 'aekm bxbe duvs vyzx'
+      }
     });
-  } catch (error) {
-    console.log("Error in handleForgetPassword");
-    let err = error.message;
-    return res.status(500).json({
-      msg: "Internal Server Error",
-      err,
+
+    // Email content
+    var mailOptions = {
+      from: 'digiLateralQuizPanel@gmail.com',
+      to: email,
+      subject: 'Password API correctly working take your Password...',
+      html: `
+              <div style="border: 1px solid #000; padding: 10px; text-align: center;">
+                <h3 style="text-align: center;">Dear : ${mrExist.ACNAME}</h3>
+                <p> Your Password For <span style="background-color: blue; color: white; padding: 3px;">4ForSure Quiz</span> : ${password}</p>
+                <p>Please keep this information secure.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+              </div>
+            `
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        return res.status(500).send({ message: "Error sending email", success: false });
+      } else {
+        console.log('Email sent: ' + info.response);
+        return res.status(200).send({ message: "Password sent successfully", success: true });
+      }
     });
+
+  } catch (err) {
+    console.log(err);
   }
 };
 

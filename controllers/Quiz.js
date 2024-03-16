@@ -59,7 +59,7 @@ exports.postDrData = async (req, res) => {
   if (!mr) return res.status(400).json({ msg: "MR Not Found" });
 
   let doctor = await Quiz.findOne({ scCode });
-  if (doctor) return res.status(400).json({ msg: "Same ScCODE is found in the database" });
+  if (doctor) return res.status(400).json({ msg: "Same Number is found in the database" });
 
   try {
     const doctorEmailCheck = await Quiz.findOne({ email: email });
