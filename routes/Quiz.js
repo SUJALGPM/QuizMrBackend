@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router();
 
-const { postDrData, getDoctorName, handleUserDataById, handleUserQuizSubmit, handleLeaderBoardFilter, handleLeaderFilterByCategoryName, handleUsersStateAndName, handleOnlyNameWithId, handleUserCategory, handleUserCategoryWithQuestion, handleDoctorStatus, handleAddDoctorV2, handleUserQuizSubmitV2 } = require("../controllers/Quiz");
+const { postDrData, getDoctorName, handleUserDataById, handleUserQuizSubmit, handleLeaderBoardFilter, handleLeaderFilterByCategoryName, handleUsersStateAndName, handleOnlyNameWithId, handleUserCategory, handleUserCategoryWithQuestion, handleDoctorStatus, handleAddDoctorV2, handleUserQuizSubmitV2, handleDoctorUpdate } = require("../controllers/Quiz");
 
 router.post("/user", postDrData);
 router.get("/get/docter/name", getDoctorName);
@@ -14,6 +14,7 @@ router.get("/get/users-name-state-city", handleUsersStateAndName);
 router.post('/get/get-only-name-with-id', handleOnlyNameWithId);
 router.get("/get/user-category/:userId", handleUserCategory);
 router.get("/get/user-category-with-mulquestions-fourquestions/:mrId", handleUserCategoryWithQuestion);
+router.put("/update-doctor-detail", handleDoctorUpdate);
 
 
 // get all current month doctor and old doctor list

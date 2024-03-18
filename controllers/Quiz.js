@@ -761,3 +761,41 @@ exports.handleAddDoctorV2 = async (req, res) => {
   }
 
 }
+
+exports.handleDoctorUpdate = async (req, res) => {
+  try {
+    const { doctorId, DoctorName, City, State, Email, Speciality, Pincode } = req.body;
+
+    //Check doctor id getting or not....
+    if (!doctorId) {
+      return res.status(404).send({ message: "Doctor ID not found..!!", success: false });
+    }
+
+    //Check doctor exist or not...
+    const doctorExist = await Quiz.findById(doctorId);
+    if (!doctorExist) {
+      return res.status(404).send({ message: "Doctor not found..!!", success: false });
+    }
+
+    //Format data before update...
+    const formatNewValue = {
+      doctorName: DoctorName,
+      city: City,
+      state: State,
+      speciality: Speciality,
+      email: Email,
+      pincode: Pincode,
+    }
+
+    //Update doctor details...
+    const doctorUpdate = await Quiz.findByIdAndUpdate(doctorId, formatNewValue, { new: true });
+
+    //Send response after update..
+    res.status(201).send({ message: "Doctor Details update successfully..", success: true, data: doctorUpdate });
+
+  } catch (err) {
+    console.log(err);
+    res.status(501).send({ message: "Failed to update doctor details...", success: false });
+  }
+
+}
