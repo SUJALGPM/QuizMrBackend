@@ -22,8 +22,8 @@ const adminSchema = new mongoose.Schema({
     MobileNumber: String,
 
 
-    Mrs: [
-        { type: mongoose.Schema.Types.ObjectId, ref: 'Mr' }
+    Tlm: [
+        { type: mongoose.Schema.Types.ObjectId, ref: 'Tlm' }
     ]
 })
 

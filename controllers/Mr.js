@@ -7,6 +7,7 @@ const sendMail = require("../utility/sendMail");
 var nodemailer = require('nodemailer');
 const { maskEmail } = require("../utility/maskEmail");
 const AdminModel = require("../models/admin");
+const flmModel = require("../models/Flm");
 
 // const handleSheetUpload = async (req, res) => {
 //     try {
@@ -72,30 +73,30 @@ const AdminModel = require("../models/admin");
 
 const createMr = async (req, res) => {
   try {
-    const AdminId = req.params.id;
-    const admin = await AdminModel.findById({ _id: AdminId });
+    const flmId = req.params.id;
+    const flm = await flmModel.findById({ _id: flmId });
 
-    if (!admin) {
+    if (!flm) {
       return res.status(400).json({
-        msg: "Admin Not Found",
+        msg: "Flm Not Found",
       });
     }
 
-    const { USERNAME, MRID, PASSWORD, EMAIL, ACNAME, ROLE, HQ, REGION, ZONE, BUSINESSUNIT, DOJ } = req.body;
+    const { USERNAME, MRID, PASSWORD, EMAIL, ROLE, HQ, REGION, ZONE, BUSINESSUNIT, DOJ } = req.body;
 
     let mr;
 
-    mr = await mrModel.findOne({ USERNAME: USERNAME });
+    mr = await mrModel.findOne({ MRID: MRID });
 
 
-    if (mr) return res.status(400).json({ msg: "MRUSERNAME is already Exists", USERNAME });
+    if (mr) return res.status(400).json({ msg: "MR is already Exists", MRID });
 
     const mrExistEmail = await mrModel.findOne({ EMAIL: EMAIL });
     if (mrExistEmail) {
       return res.status(501).send({ message: "MR with same email found in database..!!", success: false });
     }
 
-    mr = new mrModel({ USERNAME, MRID, PASSWORD, EMAIL, ACNAME, ROLE, HQ, REGION, ZONE, BUSINESSUNIT, DOJ });
+    mr = new mrModel({ USERNAME, MRID, PASSWORD, EMAIL, ROLE, HQ, REGION, ZONE, BUSINESSUNIT, DOJ });
 
     mr.loginLogs.push({
       timestamp: new Date(),
@@ -104,9 +105,9 @@ const createMr = async (req, res) => {
 
 
     await mr.save();
-    admin.Mrs.push(mr._id);
+    flm.Mrs.push(mr._id);
 
-    await admin.save();
+    await flm.save();
     return res.status(200).json(mr);
 
   } catch (error) {
@@ -121,13 +122,13 @@ const createMr = async (req, res) => {
 
 const loginMr = async (req, res) => {
   try {
-    const { MRNAME, PASSWORD } = req.body;
+    const { MRID, PASSWORD } = req.body;
 
-    if (!PASSWORD || !MRNAME) {
+    if (!PASSWORD || !MRID) {
       return res.status(401).send({ message: "Plz fill all credentials..!!", success: false });
     }
 
-    let mr = await mrModel.findOne({ USERNAME: MRNAME });
+    let mr = await mrModel.findOne({ MRID: MRID });
 
     if (!mr)
       return res.status(400).json({
@@ -148,11 +149,13 @@ const loginMr = async (req, res) => {
     await mr.save();
 
     const mrId = mr._id;
+    const mrName = mr.USERNAME;
 
     return res.status(200).json({
       success: true,
       mrId,
-      MRNAME,
+      MRID,
+      mrName
     });
   } catch (error) {
     console.log("Error in Login");

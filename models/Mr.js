@@ -20,10 +20,10 @@ const mrSchema = new mongosoe.Schema({
         unique: true,
         // required: true,
     },
-    ACNAME: {
-        type: String,
-        required: false
-    },
+    // ACNAME: {
+    //     type: String,
+    //     required: false
+    // },
     ROLE: {
         type: String,
         // required: true,

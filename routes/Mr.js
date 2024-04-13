@@ -13,7 +13,7 @@ router.post("/create-mr/:id", createMr);
 router.post("/login-mr", loginMr);
 router.get("/get-mr-doctors/:id", GetDoctorsByMR);
 // router.post("/upload-sheet/:id", upload.single('file'), handleSheetUpload);
-router.post("/upload-sheet/:id", upload.single('file'), handleUpload)
+router.post("/upload-sheet/:id", upload.single('file'), handleUpload);
 router.get("/admin-side-reports", handleAdminSideReports);
 router.get("/get-all-doctor-mrs-data", handleAllMrDoctorsData);
 router.get("/v2/get-all-doctor-mrs-data", handleAllMrDoctorsDataV2);
