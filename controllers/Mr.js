@@ -1009,14 +1009,15 @@ const handleAdminMrs = async (req, res) => {
 
         for (const flm of flmData) {
           const mrData = await mrModel.find({ _id: { $in: flm.Mrs } });
-          mrResponse.push(mrData);
+          // mrResponse.push(mrData);
+          mrResponse.push(...mrData);
         }
       }
 
       tlm.Slm = slmData;
     }
 
-    return res.json(mrResponse);
+    return res.json(mrResponse.flat());
 
   } catch (error) {
     console.error(error);
