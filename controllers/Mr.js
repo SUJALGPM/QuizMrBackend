@@ -1,11 +1,7 @@
 const mrModel = require("../models/Mr");
 const Quiz = require("../models/Quiz");
-const fs = require("fs");
-const csv = require("csv-parser");
 const xlsx = require("xlsx");
-const sendMail = require("../utility/sendMail");
 var nodemailer = require('nodemailer');
-const { maskEmail } = require("../utility/maskEmail");
 const AdminModel = require("../models/admin");
 const flmModel = require("../models/Flm");
 const SlmModel = require("../models/Slm");
@@ -578,8 +574,8 @@ const handleAllMrDoctorsDataV3 = async (req, res) => {
 
 const handleForgetPassword = async (req, res) => {
   try {
-    const { userName } = req.body;
-    const mrExist = await mrModel.findOne({ USERNAME: userName });
+    const { MRID } = req.body;
+    const mrExist = await mrModel.findOne({ MRID: MRID });
 
     if (!mrExist) {
       return res.status(404).send({ message: "MR Not found...!!!", success: false });
@@ -588,13 +584,14 @@ const handleForgetPassword = async (req, res) => {
     // Send the password directly via email
     const password = mrExist.PASSWORD;
     const email = mrExist.EMAIL;
+    const name = mrExist.USERNAME;
 
     // NodeMailer Configuration
     var transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'digilateraldev@gmail.com',
-        pass: 'aekm bxbe duvs vyzx'
+        pass: 'ohax atcp umht xked'
       }
     });
 
@@ -605,7 +602,7 @@ const handleForgetPassword = async (req, res) => {
       subject: 'Password API correctly working take your Password...',
       html: `
               <div style="border: 1px solid #000; padding: 10px; text-align: center;">
-                <h3 style="text-align: center;">Dear : ${mrExist.ACNAME}</h3>
+                <h3 style="text-align: center;">Dear : ${name}</h3>
                 <p> Your Password For <span style="background-color: blue; color: white; padding: 3px;">4ForSure Quiz</span> : ${password}</p>
                 <p>Please keep this information secure.</p>
                 <p>If you didn't request this, please ignore this email.</p>
@@ -623,6 +620,8 @@ const handleForgetPassword = async (req, res) => {
         return res.status(200).send({ message: "Password sent successfully", success: true });
       }
     });
+
+    res.status(201).json({ message: `MR NAME : ${name} PASSWORD RESTORE SUCCESSFULLY...`, success: true });
 
   } catch (err) {
     console.log(err);
@@ -763,7 +762,6 @@ const handleTopMrByDoctor = async (req, res) => {
 //   }
 // };
 
-
 const handleTop20Mr = async (req, res) => {
   try {
     const adminId = req.params.adminId;
@@ -855,7 +853,6 @@ const handleTop20Mr = async (req, res) => {
     });
   }
 };
-
 
 const handleUpload = async (req, res) => {
   try {
@@ -965,18 +962,62 @@ const handleMrsRegion = async (req, res) => {
 
 const handleAdminMrs = async (req, res) => {
   try {
-    const id = req.params.id;
+    // const id = req.params.id;
 
-    const admin = await AdminModel.findById({ _id: id });
+    // const admin = await AdminModel.findById({ _id: id });
+    // if (!admin) {
+    //   return res.json({ msg: "Admin not found" });
+    // }
+
+    // await admin.populate("Mrs");
+
+    // const mrs = admin.Mrs;
+
+    // return res.json(mrs);
+
+
+    const adminId = req.params.id;
+    console.log('adminId', adminId);
+
+    // Query the Admin collection to find the Admin document by Admin ID
+    const admin = await AdminModel.findById(adminId);
+
+    //Check admin exits or not...
     if (!admin) {
-      return res.json({ msg: "Admin not found" });
+      return res.status(404).json({ msg: "Admin not found" });
     }
 
-    await admin.populate("Mrs");
+    // Fetch Tlm data
+    const tlmData = await TlmModel.find({ _id: { $in: admin.Tlm } });
 
-    const mrs = admin.Mrs;
+    // Construct the output structure with Tlm data
+    const adminDetailWithTlm = {
+      ...admin.toObject(),
+      Tlm: tlmData,
+    };
 
-    return res.json(mrs);
+    //Fetch MRdata.....
+    const mrResponse = [];
+
+    // Fetch Slm data for each Tlm...
+    for (const tlm of adminDetailWithTlm.Tlm) {
+      const slmData = await SlmModel.find({ _id: { $in: tlm.Slm } });
+
+      for (const slm of slmData) {
+        const flmData = await flmModel.find({ _id: { $in: slm.Flm } });
+        slm.Flm = flmData;
+
+        for (const flm of flmData) {
+          const mrData = await mrModel.find({ _id: { $in: flm.Mrs } });
+          mrResponse.push(mrData);
+        }
+      }
+
+      tlm.Slm = slmData;
+    }
+
+    return res.json(mrResponse);
+
   } catch (error) {
     console.error(error);
     const err = error.message;

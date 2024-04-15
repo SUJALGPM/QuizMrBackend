@@ -1,9 +1,12 @@
 
 const AdminModel = require("../models/admin");
-const MrModel = require("../models/Mr");
+const tlmModel = require("../models/Tlm");
+const slmModel = require("../models/Slm");
+const flmModel = require("../models/Flm");
 const doctorModel = require("../models/Quiz");
 const mongoose = require("mongoose")
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const Mr = require("../models/Mr");
 
 const handleAdminCreation = async (req, res) => {
     try {
@@ -138,26 +141,81 @@ const handleUpdateAdmin = async (req, res) => {
     }
 }
 
+// const handleMrData = async (req, res) => {
+//     try {
+//         const id = req.params.id;
+//         const admin = await AdminModel.findById(id).populate('Mrs', 'MRID _id USERNAME');
+
+//         if (!admin) {
+//             return res.status(400).json({ msg: "Admin not found" });
+//         }
+
+//         const mrData = admin.Mrs.map(mr => {
+//             return {
+//                 MRID: mr.MRID,
+//                 mrName: mr.USERNAME,
+//                 _id: mr._id,
+//             };
+//         });
+
+//         console.log(mrData);
+
+//         return res.status(200).json(mrData);
+//     } catch (error) {
+//         const errMsg = error.message;
+//         console.log({ errMsg });
+//         return res.status(500).json({
+//             msg: "Internal Server Error",
+//             errMsg
+//         });
+//     }
+// };
+
 const handleMrData = async (req, res) => {
     try {
-        const id = req.params.id;
-        const admin = await AdminModel.findById(id).populate('Mrs', 'MRID _id USERNAME');
+        const adminId = req.params.id;
 
+        // Query the Admin collection to find the Admin document by Admin ID
+        const admin = await AdminModel.findById(adminId);
+
+        // Check if admin exists
         if (!admin) {
-            return res.status(400).json({ msg: "Admin not found" });
+            return res.status(404).json({ msg: "Admin not found" });
         }
 
-        const mrData = admin.Mrs.map(mr => {
-            return {
-                MRID: mr.MRID,
-                mrName: mr.USERNAME,
-                _id: mr._id,
-            };
-        });
+        // Fetch Tlm data
+        const tlmData = await tlmModel.find({ _id: { $in: admin.Tlm } });
 
-        console.log(mrData);
+        // Construct the output structure with Tlm data
+        const adminDetailWithTlm = {
+            ...admin.toObject(),
+            Tlm: tlmData,
+        };
 
-        return res.status(200).json(mrData);
+        // Fetch MR data and construct the response
+        const mrResponse = [];
+        for (const tlm of adminDetailWithTlm.Tlm) {
+            const slmData = await slmModel.find({ _id: { $in: tlm.Slm } });
+
+            for (const slm of slmData) {
+                const flmData = await flmModel.find({ _id: { $in: slm.Flm } });
+                slm.Flm = flmData;
+
+                for (const flm of flmData) {
+                    const mrData = await Mr.find({ _id: { $in: flm.Mrs } }).select('MRID USERNAME _id');
+                    mrResponse.push(...mrData.map(mr => ({
+                        MRID: mr.MRID,
+                        mrName: mr.USERNAME,
+                        _id: mr._id,
+                    })));
+                }
+            }
+
+            tlm.Slm = slmData;
+        }
+
+        res.status(201).json(mrResponse);
+
     } catch (error) {
         const errMsg = error.message;
         console.log({ errMsg });
@@ -170,27 +228,73 @@ const handleMrData = async (req, res) => {
 
 const handleDoctorDataUnderAdmin = async (req, res) => {
     try {
+        // const adminId = req.params.id;
+
+        // if (!mongoose.Types.ObjectId.isValid(adminId)) {
+        //     return res.status(400).json({ error: 'Invalid admin ID format' });
+        // }
+
+        // const adminData = await AdminModel.findById(adminId).populate({
+        //     path: 'Mrs',
+        //     model: 'Mr',
+        //     options: { strictPopulate: false }
+        // });
+
+        // if (!adminData || !adminData.Mrs || adminData.Mrs.length === 0) {
+        //     return res.status(404).json({ error: 'Admin not found or has no related MR data' });
+        // }
+
+
         const adminId = req.params.id;
+        console.log('adminId', adminId);
 
-        if (!mongoose.Types.ObjectId.isValid(adminId)) {
-            return res.status(400).json({ error: 'Invalid admin ID format' });
+        // Query the Admin collection to find the Admin document by Admin ID
+        const admin = await AdminModel.findById(adminId);
+
+        //Check admin exits or not...
+        if (!admin) {
+            return res.status(404).json({ msg: "Admin not found" });
         }
 
-        const adminData = await AdminModel.findById(adminId).populate({
-            path: 'Mrs',
-            model: 'Mr',
-            options: { strictPopulate: false }
-        });
+        // Fetch Tlm data
+        const tlmData = await tlmModel.find({ _id: { $in: admin.Tlm } });
 
-        if (!adminData || !adminData.Mrs || adminData.Mrs.length === 0) {
-            return res.status(404).json({ error: 'Admin not found or has no related MR data' });
+        // Construct the output structure with Tlm data
+        const adminDetailWithTlm = {
+            ...admin.toObject(),
+            Tlm: tlmData,
+        };
+
+        //Fetch MRdata.....
+        const mrIds = [];
+
+        // Fetch Slm data for each Tlm...
+        for (const tlm of adminDetailWithTlm.Tlm) {
+            const slmData = await slmModel.find({ _id: { $in: tlm.Slm } });
+
+            for (const slm of slmData) {
+                const flmData = await flmModel.find({ _id: { $in: slm.Flm } });
+                slm.Flm = flmData;
+
+                for (const flm of flmData) {
+                    const mrData = await Mr.find({ _id: { $in: flm.Mrs } }).select('_id');
+                    mrIds.push(mrData);
+                }
+            }
+
+            tlm.Slm = slmData;
         }
 
-        const mrIdsArray = adminData.Mrs.map(mr => mr._id);
+        // Flatten the array of arrays and extract _id values
+        const flattenedIds = mrIds.flatMap(ids => ids.map(idObj => idObj._id));
+        console.log("ids :", flattenedIds);
 
-        const doctorsArray = await doctorModel.find({ mrReference: { $in: mrIdsArray } })
+
+        // const mrIdsArray = adminData.Mrs.map(mr => mr._id);
+
+        const doctorsArray = await doctorModel.find({ mrReference: { $in: flattenedIds } })
             .populate('mrReference', 'MRID HQ REGION BUSINESSUNIT DOJ USERNAME _id EMAIL')
-            .populate({ path: 'quizCategories', model: 'QuizCategory' }) // Use the model name for quizCategories
+            .populate({ path: 'quizCategories', model: 'QuizCategory' })
             .exec();
 
         // Map the result to include quizCategories
@@ -386,6 +490,10 @@ const verifyJwtForClient = async (req, res) => {
         return res.json({ msg: errMessage })
     }
 }
+
+
+
+
 
 module.exports = {
     handleAdminCreation,
