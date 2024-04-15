@@ -8,6 +8,8 @@ var nodemailer = require('nodemailer');
 const { maskEmail } = require("../utility/maskEmail");
 const AdminModel = require("../models/admin");
 const flmModel = require("../models/Flm");
+const SlmModel = require("../models/Slm");
+const TlmModel = require("../models/Tlm");
 
 // const handleSheetUpload = async (req, res) => {
 //     try {
@@ -704,7 +706,22 @@ const handleTopMrByDoctor = async (req, res) => {
 
 // const handleTop20Mr = async (req, res) => {
 //   try {
+//     const adminId = req.params.adminId; // Extract Admin ID from request parameters
+//     console.log('adminId', adminId);
+//     // Query the Admin collection to find the Admin document by Admin ID
+//     const admin = await AdminModel.findById(adminId).populate('Mrs');
+//     console.log('admin', admin);
+//     if (!admin) {
+//       return res.status(404).json({ msg: "Admin not found" });
+//     }
+
+//     const mrIds = admin.Mrs.map(mr => mr._id); // Extract MR IDs from the Admin document
+
+//     // Use MR IDs obtained from the Admin document in the aggregation pipeline
 //     const top20MRS = await mrModel.aggregate([
+//       {
+//         $match: { _id: { $in: mrIds } }
+//       },
 //       {
 //         $lookup: {
 //           from: "quizzes",
@@ -727,7 +744,7 @@ const handleTopMrByDoctor = async (req, res) => {
 //       {
 //         $project: {
 //           USERNAME: 1,
-//           MRID: 1,
+//           ZONE: 1,
 //           REGION: 1,
 //           HQ: 1,
 //           totalDoctors: 1,
@@ -746,93 +763,57 @@ const handleTopMrByDoctor = async (req, res) => {
 //   }
 // };
 
-// const handleUpload = async (req, res) => {
-//     try {
-//         const AdminId = req.params.id;
-//         const admin = await AdminModel.findById({ _id: AdminId });
-//         if (!admin) {
-//             return res.status(400).json({
-//                 msg: "Admin Not Found"
-//             })
-//         }
-
-//         const workbook = xlsx.readFile(req.file.path);
-//         const sheetName = workbook.SheetNames[0];
-//         const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-//         for (const row of sheetData) {
-//             console.log({ row });
-//             const existingMr = await mrModel.findOne({ MRID: row.MRID });
-//             if (existingMr) {
-//                 const newDoctor = await new Quiz({
-//                     doctorName: row.doctorName,
-//                     scCode: row.scCode,
-//                     city: row.city,
-//                     state: row.state,
-//                     locality: row.locality,
-//                     doc: Date.now(),
-//                     mrReference: existingMr._id
-//                 })
-//                 console.log({ newDoctor });
-//                 await existingMr.save();
-//                 await newDoctor.save();
-//             }
-//             else {
-//                 const newMr = await new mrModel({
-//                     USERNAME: row.USERNAME,
-//                     MRID: row.MRID,
-//                     PASSWORD: row.PASSWORD,
-//                     EMAIL: row.EMAIL,
-//                     ROLE: row.ROLE,
-//                     HQ: row.HQ,
-//                     REGION: row.REGION,
-//                     BUSINESSUNIT: row.BUSINESSUNIT,
-//                     DOJ: row.DOJ,
-//                     SCCODE: row.SCCODE,
-//                 })
-//                 await newMr.save();
-
-//                 admin.Mrs.push(newMr._id);
-//                 await admin.save();
-//                 const newDoctor = await new Quiz({
-//                     doctorName: row.doctorName,
-//                     scCode: row.scCode,
-//                     city: row.city,
-//                     state: row.state,
-//                     locality: row.locality,
-//                     doc: Date.now(),
-//                     mrReference: newMr._id
-//                 })
-//                 await newDoctor.save();
-//             }
-//         }
-//         res.status(200).json({ message: "Data uploaded successfully" })
-//     } catch (error) {
-//         console.error(error);
-//         const err = error.message;
-//         res.status(500).json({
-//             error: 'Internal server error',
-//             err
-//         })
-//     }
-// }
 
 const handleTop20Mr = async (req, res) => {
   try {
-    const adminId = req.params.adminId; // Extract Admin ID from request parameters
+    const adminId = req.params.adminId;
     console.log('adminId', adminId);
+
     // Query the Admin collection to find the Admin document by Admin ID
-    const admin = await AdminModel.findById(adminId).populate('Mrs');
-    console.log('admin', admin);
+    const admin = await AdminModel.findById(adminId);
+
+    //Check admin exits or not...
     if (!admin) {
       return res.status(404).json({ msg: "Admin not found" });
     }
 
-    const mrIds = admin.Mrs.map(mr => mr._id); // Extract MR IDs from the Admin document
+    // Fetch Tlm data
+    const tlmData = await TlmModel.find({ _id: { $in: admin.Tlm } });
+
+    // Construct the output structure with Tlm data
+    const adminDetailWithTlm = {
+      ...admin.toObject(),
+      Tlm: tlmData,
+    };
+
+    //Fetch MRdata.....
+    const mrIds = [];
+
+    // Fetch Slm data for each Tlm...
+    for (const tlm of adminDetailWithTlm.Tlm) {
+      const slmData = await SlmModel.find({ _id: { $in: tlm.Slm } });
+
+      for (const slm of slmData) {
+        const flmData = await flmModel.find({ _id: { $in: slm.Flm } });
+        slm.Flm = flmData;
+
+        for (const flm of flmData) {
+          const mrData = await mrModel.find({ _id: { $in: flm.Mrs } }).select('_id');
+          mrIds.push(mrData);
+        }
+      }
+
+      tlm.Slm = slmData;
+    }
+
+    // Flatten the array of arrays and extract _id values
+    const flattenedIds = mrIds.flatMap(ids => ids.map(idObj => idObj._id));
+    console.log("ids :", flattenedIds);
 
     // Use MR IDs obtained from the Admin document in the aggregation pipeline
     const top20MRS = await mrModel.aggregate([
       {
-        $match: { _id: { $in: mrIds } }
+        $match: { _id: { $in: flattenedIds } }
       },
       {
         $lookup: {
@@ -874,6 +855,7 @@ const handleTop20Mr = async (req, res) => {
     });
   }
 };
+
 
 const handleUpload = async (req, res) => {
   try {
