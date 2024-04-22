@@ -4,12 +4,12 @@ const mrSchema = new mongosoe.Schema({
 
     USERNAME: {
         type: String,
-        unique: true
-        // required: true,
+        required: false,
     },
     MRID: {
         type: String,
-        required: false,
+        required: true,
+        unique: true,
     },
     PASSWORD: {
         type: String,
@@ -17,8 +17,7 @@ const mrSchema = new mongosoe.Schema({
     },
     EMAIL: {
         type: String,
-        unique: true,
-        // required: true,
+        required: false,
     },
     // ACNAME: {
     //     type: String,

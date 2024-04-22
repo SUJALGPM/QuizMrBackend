@@ -1,12 +1,15 @@
-
 const AdminModel = require("../models/admin");
 const tlmModel = require("../models/Tlm");
 const slmModel = require("../models/Slm");
 const flmModel = require("../models/Flm");
 const doctorModel = require("../models/Quiz");
+const Mr = require("../models/Mr");
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken");
-const Mr = require("../models/Mr");
+const xlsx = require("xlsx");
+const colors = require('colors');
+
+
 
 const handleAdminCreation = async (req, res) => {
     try {
@@ -430,7 +433,6 @@ const handleCreateContentAdmin = async (req, res) => {
     }
 }
 
-
 const handleReportAdminCreate = async (req, res) => {
     try {
         const userId = req.headers['userId'];
@@ -470,7 +472,6 @@ const handleReportAdminCreate = async (req, res) => {
     }
 }
 
-
 const verifyJwtForClient = async (req, res) => {
 
     try {
@@ -491,6 +492,334 @@ const verifyJwtForClient = async (req, res) => {
     }
 }
 
+// const handleExcelsheetUpload = async (req, res) => {
+//     try {
+//         // Admin Exist or not checking......
+//         const AdminId = req.params.id;
+//         const admin = await AdminModel.findById(AdminId);
+//         if (!admin) {
+//             return res.status(400).json({
+//                 msg: "Admin Not Found"
+//             });
+//         }
+
+//         // EXCEL SHEET Upload file....
+//         const workbook = xlsx.readFile(req.file.path);
+//         const sheetName = workbook.SheetNames[0];
+//         const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+//         // For loop the sheet data to store in various collections
+//         for (const row of sheetData) {
+//             console.log('Sheet Data:', row);
+
+//             // Check the TLM exists or not
+//             let existTlm = await tlmModel.findOne({ TLMEmpID: row.TLMID });
+//             if (!existTlm) {
+//                 // TLM doesn't exist, create new TLM
+//                 existTlm = new tlmModel({
+//                     TLMEmpID: row.TLMID,
+//                     TLMName: row.TLMNAME,
+//                     Password: row.TLMPASSWORD,
+//                     HQ: row.TLMHQ,
+//                     ZONE: row.TLMZONE,
+//                 });
+//                 await existTlm.save();
+//                 admin.Tlm.push(existTlm._id);
+//                 await admin.save();
+//             }
+
+//             // Check the SLM exists or not
+//             let existSlm = await slmModel.findOne({ SLMEmpID: row.SLMID });
+//             if (!existSlm) {
+//                 // SLM doesn't exist, create new SLM
+//                 existSlm = new slmModel({
+//                     SLMEmpID: row.SLMID,
+//                     SLMName: row.SLMNAME,
+//                     Password: row.SLMPASSWORD,
+//                     HQ: row.SLMHQ,
+//                     REGION: row.SLMREGION,
+//                     ZONE: row.SLMZONE,
+//                 });
+//                 await existSlm.save();
+//                 existTlm.Slm.push(existSlm._id);
+//                 await existTlm.save();
+//             }
+
+//             // Check the FLM exists or not
+//             let existFlm = await flmModel.findOne({ FLMEmpID: row.FLMID });
+//             if (!existFlm) {
+//                 // FLM doesn't exist, create new FLM
+//                 existFlm = new flmModel({
+//                     FLMEmpID: row.FLMID,
+//                     BDMName: row.FLMNAME,
+//                     Password: row.FLMPASSWORD,
+//                     HQ: row.FLMHQ,
+//                     REGION: row.FLMREGION,
+//                     ZONE: row.FLMZONE,
+//                 });
+//                 await existFlm.save();
+//                 existSlm.Flm.push(existFlm._id);
+//                 await existSlm.save();
+//             }
+
+//             // Check the MR exists or not
+//             let existingMr = await Mr.findOne({ MRID: row.MRID });
+//             const cleanDOJ = row.MRDOJ.replace("`", "");
+//             if (!existingMr) {
+//                 // MR doesn't exist, create new MR
+//                 existingMr = new Mr({
+//                     MRID: row.MRID,
+//                     USERNAME: row.MRNAME,
+//                     EMAIL: row.MREMAIL,
+//                     PASSWORD: row.MRPASSWORD,
+//                     ROLE: row.MRROLE,
+//                     HQ: row.MRHQ,
+//                     REGION: row.MRREGION,
+//                     ZONE: row.MRZONE,
+//                     BUSINESSUNIT: row.MRBUSSINESSUNIT,
+//                     DOJ: cleanDOJ,
+//                 });
+//                 await existingMr.save();
+//                 existFlm.Mrs.push(existingMr._id);
+//                 await existFlm.save();
+//             }
+
+//             // // Check if a doctor with the same SCCode already exists
+//             // let existingDoctor = await DoctorModel.findOne({ SCCode: row.SCCode.replace('`', '') });
+//             // if (!existingDoctor) {
+
+//             //     // Remove the backtick from SCCode
+//             //     const cleanSCCode = row.SCCode.replace('`', '');
+
+//             //     // Map "Active" and "Inactive" to Boolean values
+//             //     let doctorStatus = true; // Assume default status is "Active"
+//             //     if (row.DoctorStatus === "inactive") {
+//             //         doctorStatus = false;
+//             //     }
+
+//             //     // Create a new doctor entry
+//             //     existingDoctor = new DoctorModel({
+//             //         SCCode: cleanSCCode,
+//             //         DoctorName: row.DoctorName,
+//             //         Specialty: row.Specialty,
+//             //         Place: row.Place,
+//             //         CLASS: row.CLASS,
+//             //         VF: row.VF,
+//             //         DoctorPotential: row.DoctorPotential,
+//             //         POBStatus: row.POBStatus,
+//             //         POBCount: row.POBCount,
+//             //         DoctorStatus: doctorStatus,
+//             //         doc: Date.now()
+//             //     });
+//             //     await existingDoctor.save();
+
+//             //     // Associate the doctor with the MR
+//             //     existingMr.doctors.push(existingDoctor._id);
+//             //     await existingMr.save();
+//             // }
+
+//             // // Check if a doctor with the same SCCode already exists
+//             // let existingPatient = await PatientModel.findOne({ PatientName: row.PatientName });
+//             // if (!existingPatient) {
+
+//             //     // Map "Active" and "Inactive" to Boolean values
+//             //     let patientStatus = true; // Assume default status is "Active"
+//             //     if (row.PatientStatus === "DISCONTINUE") {
+//             //         patientStatus = false;
+//             //     }
+
+//             //     //Calculation of total..
+//             //     const calculateTotal = row.Price * row.NoDose;
+
+//             //     // Extract age from the row data and parse it as an integer
+//             //     const age = parseInt(row['Age ']);
+
+//             //     // Create a new doctor entry
+//             //     existingPatient = new PatientModel({
+//             //         PatientName: row.PatientName,
+//             //         Age: age,
+//             //         Gender: row.Gender,
+//             //         MobileNumber: row.MobileNumber,
+//             //         Location: row.Location,
+//             //         // NoUnitPurchased: row.NoUnitPurchased,
+//             //         Month: row.Month,
+//             //         Year: row.Year,
+//             //         PatientStatus: patientStatus,
+//             //         Reason: row.Reason,
+//             //         doc: Date.now(),
+//             //         PatientType: row.PatientType,
+//             //         Repurchase: {
+//             //             DurationOfTherapy: row.DurationOfTherapy,
+//             //             TotolCartiridgesPurchase: row.NoUnitPurchased,
+//             //             DateOfPurchase: row.DateOfPurchase,
+//             //             Delivery: row.Delivery,
+//             //             TherapyStatus: row.TherapyStatus,
+//             //             UnitsPrescribe: row.UnitsPrescribe,
+//             //             Indication: row.Indication,
+//             //             Price: row.Price,
+//             //             NoDose: row.NoDose,
+//             //             Total: calculateTotal,
+//             //             Brands: row.Brands
+//             //         }
+//             //     });
+//             //     await existingPatient.save();
+
+//             //     // Associate the patient with the doctor
+//             //     existingDoctor.patients.push(existingPatient._id);
+//             //     await existingDoctor.save();
+//             // }
+//         }
+
+//         res.status(200).json({ message: "Data uploaded successfully" });
+//     } catch (error) {
+//         console.error(error);
+//         const err = error.message;
+//         res.status(500).json({
+//             error: 'Internal server error',
+//             err
+//         });
+//     }
+// }
+
+const handleExcelsheetUpload = async (req, res) => {
+    try {
+        // Admin Exist or not checking......
+        const AdminId = req.params.id;
+        const admin = await AdminModel.findById(AdminId);
+        if (!admin) {
+            return res.status(400).json({
+                msg: "Admin Not Found"
+            });
+        }
+
+        // EXCEL SHEET Upload file....
+        const workbook = xlsx.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0];
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        // For loop the sheet data to store in various collections
+        for (const row of sheetData) {
+            console.log("SheetDataExcel :", row);
+            // console.log(`EXCEL_SHEET_DATA READ : ${row}`.bgCyan.white);
+
+            // Check the TLM exists or not
+            let existTlm = await tlmModel.findOne({ TLMEmpID: row.TLMID });
+            if (existTlm) {
+                // Update existing TLM data if it already exists
+                existTlm.TLMName = row.TLMNAME;
+                existTlm.Password = row.TLMPASSWORD;
+                existTlm.HQ = row.TLMHQ;
+                existTlm.ZONE = row.TLMZONE;
+                await existTlm.save();
+            } else {
+                // TLM doesn't exist, create new TLM
+                existTlm = new tlmModel({
+                    TLMEmpID: row.TLMID,
+                    TLMName: row.TLMNAME,
+                    Password: row.TLMPASSWORD,
+                    HQ: row.TLMHQ,
+                    ZONE: row.TLMZONE,
+                });
+                await existTlm.save();
+                admin.Tlm.push(existTlm._id);
+                await admin.save();
+            }
+
+            // Check the SLM exists or not
+            let existSlm = await slmModel.findOne({ SLMEmpID: row.SLMID });
+            if (existSlm) {
+                // Update existing SLM data if it already exists
+                existSlm.SLMName = row.SLMNAME;
+                existSlm.Password = row.SLMPASSWORD;
+                existSlm.HQ = row.SLMHQ;
+                existSlm.REGION = row.SLMREGION;
+                existSlm.ZONE = row.SLMZONE;
+                await existSlm.save();
+            } else {
+                // SLM doesn't exist, create new SLM
+                existSlm = new slmModel({
+                    SLMEmpID: row.SLMID,
+                    SLMName: row.SLMNAME,
+                    Password: row.SLMPASSWORD,
+                    HQ: row.SLMHQ,
+                    REGION: row.SLMREGION,
+                    ZONE: row.SLMZONE,
+                });
+                await existSlm.save();
+                existTlm.Slm.push(existSlm._id);
+                await existTlm.save();
+            }
+
+            // Check the FLM exists or not
+            let existFlm = await flmModel.findOne({ FLMEmpID: row.FLMID });
+            if (existFlm) {
+                // Update existing FLM data if it already exists
+                existFlm.BDMName = row.FLMNAME;
+                existFlm.Password = row.FLMPASSWORD;
+                existFlm.HQ = row.FLMHQ;
+                existFlm.REGION = row.FLMREGION;
+                existFlm.ZONE = row.FLMZONE;
+                await existFlm.save();
+            } else {
+                // FLM doesn't exist, create new FLM
+                existFlm = new flmModel({
+                    FLMEmpID: row.FLMID,
+                    BDMName: row.FLMNAME,
+                    Password: row.FLMPASSWORD,
+                    HQ: row.FLMHQ,
+                    REGION: row.FLMREGION,
+                    ZONE: row.FLMZONE,
+                });
+                await existFlm.save();
+                existSlm.Flm.push(existFlm._id);
+                await existSlm.save();
+            }
+
+            // Check the MR exists or not
+            let existingMr = await Mr.findOne({ MRID: row.MRID });
+            const cleanDOJ = row.MRDOJ.replace("`", "");
+            if (existingMr) {
+                // Update existing MR data if it already exists
+                existingMr.USERNAME = row.MRNAME;
+                existingMr.EMAIL = row.MREMAIL;
+                existingMr.PASSWORD = row.MRPASSWORD;
+                existingMr.ROLE = row.MRROLE;
+                existingMr.HQ = row.MRHQ;
+                existingMr.REGION = row.MRREGION;
+                existingMr.ZONE = row.MRZONE;
+                existingMr.BUSINESSUNIT = row.MRBUSSINESSUNIT;
+                existingMr.DOJ = cleanDOJ;
+                await existingMr.save();
+            } else {
+                // MR doesn't exist, create new MR
+                existingMr = new Mr({
+                    MRID: row.MRID,
+                    USERNAME: row.MRNAME,
+                    EMAIL: row.MREMAIL,
+                    PASSWORD: row.MRPASSWORD,
+                    ROLE: row.MRROLE,
+                    HQ: row.MRHQ,
+                    REGION: row.MRREGION,
+                    ZONE: row.MRZONE,
+                    BUSINESSUNIT: row.MRBUSSINESSUNIT,
+                    DOJ: cleanDOJ,
+                });
+                await existingMr.save();
+                existFlm.Mrs.push(existingMr._id);
+                await existFlm.save();
+            }
+        }
+
+        res.status(200).json({ message: "Data uploaded successfully", success: true });
+    } catch (error) {
+        console.error(error);
+        const err = error.message;
+        res.status(500).json({
+            error: 'Internal server error',
+            err
+        });
+    }
+}
 
 
 
@@ -506,7 +835,8 @@ module.exports = {
     handleSuperAdminCreate,
     handleCreateContentAdmin,
     handleReportAdminCreate,
-    verifyJwtForClient
+    verifyJwtForClient,
+    handleExcelsheetUpload
 }
 
 
