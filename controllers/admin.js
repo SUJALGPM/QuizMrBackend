@@ -700,7 +700,6 @@ const handleExcelsheetUpload = async (req, res) => {
         // For loop the sheet data to store in various collections
         for (const row of sheetData) {
             console.log("SheetDataExcel :", row);
-            // console.log(`EXCEL_SHEET_DATA READ : ${row}`.bgCyan.white);
 
             // Check the TLM exists or not
             let existTlm = await tlmModel.findOne({ TLMEmpID: row.TLMID });
@@ -777,8 +776,9 @@ const handleExcelsheetUpload = async (req, res) => {
 
             // Check the MR exists or not
             let existingMr = await Mr.findOne({ MRID: row.MRID });
-            const cleanDOJ = row.MRDOJ.replace("`", "");
-            if (existingMr) {
+            // const cleanDOJ = row.MRDOJ.replace("`", "");
+            const cleanDOJ = typeof row.MRDOJ === 'string' ? row.MRDOJ.replace("`", "") : row.MRDOJ;
+            if (existingMr) {   
                 // Update existing MR data if it already exists
                 existingMr.USERNAME = row.MRNAME;
                 existingMr.EMAIL = row.MREMAIL;
