@@ -49,17 +49,15 @@ exports.postDrData = async (req, res) => {
 
   const { doctorName, speciality, email, city, state, mrId, scCode, locality, pincode, date } = req.body;
 
-  // // Validate email format
-  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // if (!emailRegex.test(email)) {
-  //   return res.status(400).json({ msg: "Invalid email format" });
-  // }
+
+  console.log("Requested coming data :", req.body);
+
 
   let mr = await mrModel.findById({ _id: mrId });
-  if (!mr) return res.status(400).json({ msg: "MR Not Found" });
+  if (!mr) return res.status(400).json({ message: "MR Not Found" });
 
   let doctor = await Quiz.findOne({ scCode });
-  if (doctor) return res.status(400).json({ msg: "Same Number is found in the database" });
+  if (doctor) return res.status(400).json({ message: "Same Number is found in the database" });
 
   try {
     const doctorEmailCheck = await Quiz.findOne({ email: email });
