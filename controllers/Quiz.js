@@ -80,11 +80,16 @@ exports.postDrData = async (req, res) => {
 
     const data = await newDoctor.save();
     const Id = data._id;
+
+    mr.Doctors.push(data._id);
+    await mr.save();
+
     return res.status(201).json({
       message: "Doctor data inserted",
       Id,
       data: data
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });

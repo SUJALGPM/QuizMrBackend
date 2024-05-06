@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const upload = multer({ dest: 'uploads/' });
 
-const { handleAdminCreation, handleAdminLogin, handleAdminGet, handleUpdateAdmin, handleMrData, handleDoctorDataUnderAdmin, handleSuperAdminCount, handleSuperAdminCreate, handleCreateContentAdmin, handleReportAdminCreate, verifyJwtForClient, handleExcelsheetUpload } = require("../controllers/admin");
+const { handleAdminCreation, handleAdminLogin, handleAdminGet, handleUpdateAdmin, handleMrData, handleDoctorDataUnderAdmin, handleSuperAdminCount, handleSuperAdminCreate, handleCreateContentAdmin, handleReportAdminCreate, verifyJwtForClient, handleExcelsheetUpload, handleDetailReportAdminPanel } = require("../controllers/admin");
 
 const { authenticateJwt } = require("../middlewares/auth");
 
@@ -36,7 +36,7 @@ router.route("./update-admin-logo", upload.single('image')).put(handleUpdateAdmi
 //ExcelSheet upload with new branching(TLM-SLM-FLM-MR)....
 router.post("/upload-excelSheet-admin/:id", upload.single('file'), handleExcelsheetUpload);
 
-
+router.get("/adminPanel-detailReport/:id", handleDetailReportAdminPanel)
 
 
 

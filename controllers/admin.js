@@ -778,7 +778,7 @@ const handleExcelsheetUpload = async (req, res) => {
             let existingMr = await Mr.findOne({ MRID: row.MRID });
             // const cleanDOJ = row.MRDOJ.replace("`", "");
             const cleanDOJ = typeof row.MRDOJ === 'string' ? row.MRDOJ.replace("`", "") : row.MRDOJ;
-            if (existingMr) {   
+            if (existingMr) {
                 // Update existing MR data if it already exists
                 existingMr.USERNAME = row.MRNAME;
                 existingMr.EMAIL = row.MREMAIL;
@@ -821,6 +821,110 @@ const handleExcelsheetUpload = async (req, res) => {
     }
 }
 
+const handleDetailReportAdminPanel = async (req, res) => {
+    // try {
+    //     const adminId = req.params.id;
+
+    //     //Check admin id is getting or not..
+    //     if (!adminId) {
+    //         return res.status(404).send({ message: "Admin ID not found...!!", success: false });
+    //     }
+
+    //     //check admin exist or not..
+    //     const adminExist = await AdminModel.findById(adminId).populate({
+    //         path: 'Tlm',
+    //         model: 'Tlm',
+    //         populate: {
+    //             path: 'Slm',
+    //             model: 'Slm',
+    //             populate: {
+    //                 path: 'Flm',
+    //                 model: 'Flm',
+    //                 populate: {
+    //                     path: 'Mrs',
+    //                     model: 'Mr',
+    //                 }
+    //             }
+    //         }
+    //     });
+
+
+    //     if (!adminExist) {
+    //         return res.status(401).send({ message: "Admin not found..!!!", success: false });
+    //     }
+
+
+    //     //Store in empty conatiner...
+    //     const detailPatientlist = [];
+
+    //     //Loop Data of mr...
+    //     for (const tlm of adminExist.Tlm) {
+    //         for (const slm of tlm.Slm) {
+    //             for (const flm of slm.Flm) {
+    //                 for (const mrs of flm.Mrs) {
+
+    //                     //Check the flm exist or not..
+    //                     const doctorExist = await doctorModel.findOne({ mrReference: { $in: mrs._id } });
+    //                     if (!doctorExist) {
+    //                         return res.status(404).send({ message: "Doctor not found..!!" });
+    //                     }
+
+    //                     const report = {
+    //                         AID: adminExist.AdminId || '',
+    //                         ANAME: adminExist.Name || '',
+    //                         AROLE: adminExist.role || '',
+    //                         AGENDER: adminExist.Gender || '',
+    //                         ACONTACT: adminExist.MobileNumber || '',
+    //                         TID: tlm.TLMEmpID,
+    //                         T: tlm.TLMName,
+    //                         THQ: tlm.HQ,
+    //                         TZONE: tlm.ZONE,
+    //                         SID: slm.SLMEmpID || '',
+    //                         SNAME: slm.SLMName || '',
+    //                         SHQ: slm.HQ || '',
+    //                         SREGION: slm.REGION || '',
+    //                         SZONE: slm.ZONE || '',
+    //                         FID: flm.FLMEmpID || '',
+    //                         FNAME: flm.BDMName || '',
+    //                         FHQ: flm.HQ || '',
+    //                         FREGION: flm.REGION || '',
+    //                         FZONE: flm.ZONE || '',
+    //                         MID: mrs.MRID || '',
+    //                         MNAME: mrs.USERNAME || '',
+    //                         MPASS: mrs.PASSWORD || '',
+    //                         MEMAIL: mrs.EMAIL || '',
+    //                         MROLE: mrs.ROLE || '',
+    //                         MREGION: mrs.REGION || '',  
+    //                         MZONE: mrs.ZONE || '',
+    //                         MHQ: mrs.HQ || '',
+    //                         MBUSINESSUNIT: mrs.BUSINESSUNIT || '',
+    //                         MDOJ: mrs.DOJ || '',
+    //                         DRNAME: doctorExist.doctorName || '',
+    //                         DRSCCODE: doctorExistdoctors.SCCode || '',
+    //                         DRSPEC: doctorExist.Specialty || '',
+    //                         DRPLACE: doctorExist.Place || '',
+    //                         DRCLASS: doctorExist.CLASS || '',
+    //                         DRVF: doctorExist.VF || '',
+    //                         DRPOTENTIAL: doctorExist.DoctorPotential || '',
+    //                         DRSTATUS: doctorExist.DoctorStatus || '',
+    //                         DRDOC: moment(doctorExist.doc).format('DD-MM-YYYY') || ''
+    //                     }
+    //                     detailPatientlist.push(report);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // //Send the response of loop data...
+    //     res.status(201).json(detailPatientlist);
+
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send({ message: "Internal Server Error", success: false });
+    // }
+}
+
+
 
 
 
@@ -836,7 +940,8 @@ module.exports = {
     handleCreateContentAdmin,
     handleReportAdminCreate,
     verifyJwtForClient,
-    handleExcelsheetUpload
+    handleExcelsheetUpload,
+    handleDetailReportAdminPanel
 }
 
 

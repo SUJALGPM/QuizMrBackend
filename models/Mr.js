@@ -61,6 +61,10 @@ const mrSchema = new mongosoe.Schema({
             },
         },
     ],
+
+    Doctors: [
+        { type: mongosoe.Schema.Types.ObjectId, ref: 'Quiz' }
+    ]
 })
 
 
