@@ -493,6 +493,7 @@ const verifyJwtForClient = async (req, res) => {
     }
 }
 
+//Basic structure of api...
 // const handleExcelsheetUpload = async (req, res) => {
 //     try {
 //         // Admin Exist or not checking......
@@ -822,6 +823,7 @@ const handleExcelsheetUpload = async (req, res) => {
     }
 }
 
+//Basic structure of api...
 // const handleDetailReportAdminPanel = async (req, res) => {
 //     try {
 //         const adminId = req.params.id;
@@ -867,48 +869,94 @@ const handleExcelsheetUpload = async (req, res) => {
 //             for (const slm of tlm.Slm) {
 //                 for (const flm of slm.Flm) {
 //                     for (const mrs of flm.Mrs) {
-//                         for (const doctors of mrs.Doctors) {
-//                             const report = {
-//                                 AID: adminExist.AdminId || '',
-//                                 ANAME: adminExist.Name || '',
-//                                 AROLE: adminExist.role || '',
-//                                 AGENDER: adminExist.Gender || '',
-//                                 ACONTACT: adminExist.MobileNumber || '',
-//                                 TID: tlm.TLMEmpID,
-//                                 TNAME: tlm.TLMName,
-//                                 THQ: tlm.HQ,
-//                                 TZONE: tlm.ZONE,
-//                                 SID: slm.SLMEmpID || '',
-//                                 SNAME: slm.SLMName || '',
-//                                 SHQ: slm.HQ || '',
-//                                 SREGION: slm.REGION || '',
-//                                 SZONE: slm.ZONE || '',
-//                                 FID: flm.FLMEmpID || '',
-//                                 FNAME: flm.BDMName || '',
-//                                 FHQ: flm.HQ || '',
-//                                 FREGION: flm.REGION || '',
-//                                 FZONE: flm.ZONE || '',
-//                                 MID: mrs.MRID || '',
-//                                 MNAME: mrs.USERNAME || '',
-//                                 MPASS: mrs.PASSWORD || '',
-//                                 MEMAIL: mrs.EMAIL || '',
-//                                 MROLE: mrs.ROLE || '',
-//                                 MREGION: mrs.REGION || '',
-//                                 MZONE: mrs.ZONE || '',
-//                                 MHQ: mrs.HQ || '',
-//                                 MBUSINESSUNIT: mrs.BUSINESSUNIT || '',
-//                                 MDOJ: moment(mrs.DOJ, 'DD/MM/YYYY').format('DD-MM-YYYY') || '',
-//                                 DNAME: doctors.doctorName || '',
-//                                 DNUMBER: doctors.scCode || '',
-//                                 DEMAIL: doctors.email || '',
-//                                 DSPEC: doctors.speciality || '',
-//                                 DCITY: doctors.city || '',
-//                                 DSTATE: doctors.state || '',
-//                                 DLOCALITY: doctors.locality || '',
-//                                 DPINCODE: doctors.pincode || '',
-//                                 DDOC: moment(doctors.doc).format('DD-MM-YYYY') || '',
+//                         if (mrs.Doctors || mrs.Doctors.length > 0) {
+//                             for (const doctors of mrs.Doctors) {
+//                                 const report = {
+//                                     AID: adminExist.AdminId || '',
+//                                     ANAME: adminExist.Name || '',
+//                                     AROLE: adminExist.role || '',
+//                                     AGENDER: adminExist.Gender || '',
+//                                     ACONTACT: adminExist.MobileNumber || '',
+//                                     TID: tlm.TLMEmpID,
+//                                     TNAME: tlm.TLMName,
+//                                     THQ: tlm.HQ,
+//                                     TZONE: tlm.ZONE,
+//                                     SID: slm.SLMEmpID || '',
+//                                     SNAME: slm.SLMName || '',
+//                                     SHQ: slm.HQ || '',
+//                                     SREGION: slm.REGION || '',
+//                                     SZONE: slm.ZONE || '',
+//                                     FID: flm.FLMEmpID || '',
+//                                     FNAME: flm.BDMName || '',
+//                                     FHQ: flm.HQ || '',
+//                                     FREGION: flm.REGION || '',
+//                                     FZONE: flm.ZONE || '',
+//                                     MID: mrs.MRID || '',
+//                                     MNAME: mrs.USERNAME || '',
+//                                     MPASS: mrs.PASSWORD || '',
+//                                     MEMAIL: mrs.EMAIL || '',
+//                                     MROLE: mrs.ROLE || '',
+//                                     MREGION: mrs.REGION || '',
+//                                     MZONE: mrs.ZONE || '',
+//                                     MHQ: mrs.HQ || '',
+//                                     MBUSINESSUNIT: mrs.BUSINESSUNIT || '',
+//                                     MDOJ: moment(mrs.DOJ, 'DD/MM/YYYY').format('DD-MM-YYYY') || '',
+//                                     DNAME: doctors.doctorName || '',
+//                                     DNUMBER: doctors.scCode || '',
+//                                     DEMAIL: doctors.email || '',
+//                                     DSPEC: doctors.speciality || '',
+//                                     DCITY: doctors.city || '',
+//                                     DSTATE: doctors.state || '',
+//                                     DLOCALITY: doctors.locality || '',
+//                                     DPINCODE: doctors.pincode || '',
+//                                     DDOC: moment(doctors.doc).format('DD-MM-YYYY') || '',
+//                                 }
+//                                 detailPatientlist.push(report);
 //                             }
-//                             detailPatientlist.push(report);
+//                         } else {
+//                             for (const doctors of mrs.Doctors) {
+//                                 const report = {
+//                                     AID: adminExist.AdminId || '',
+//                                     ANAME: adminExist.Name || '',
+//                                     AROLE: adminExist.role || '',
+//                                     AGENDER: adminExist.Gender || '',
+//                                     ACONTACT: adminExist.MobileNumber || '',
+//                                     TID: tlm.TLMEmpID,
+//                                     TNAME: tlm.TLMName,
+//                                     THQ: tlm.HQ,
+//                                     TZONE: tlm.ZONE,
+//                                     SID: slm.SLMEmpID || '',
+//                                     SNAME: slm.SLMName || '',
+//                                     SHQ: slm.HQ || '',
+//                                     SREGION: slm.REGION || '',
+//                                     SZONE: slm.ZONE || '',
+//                                     FID: flm.FLMEmpID || '',
+//                                     FNAME: flm.BDMName || '',
+//                                     FHQ: flm.HQ || '',
+//                                     FREGION: flm.REGION || '',
+//                                     FZONE: flm.ZONE || '',
+//                                     MID: mrs.MRID || '',
+//                                     MNAME: mrs.USERNAME || '',
+//                                     MPASS: mrs.PASSWORD || '',
+//                                     MEMAIL: mrs.EMAIL || '',
+//                                     MROLE: mrs.ROLE || '',
+//                                     MREGION: mrs.REGION || '',
+//                                     MZONE: mrs.ZONE || '',
+//                                     MHQ: mrs.HQ || '',
+//                                     MBUSINESSUNIT: mrs.BUSINESSUNIT || '',
+//                                     MDOJ: moment(mrs.DOJ, 'DD/MM/YYYY').format('DD-MM-YYYY') || '',
+//                                     DNAME: doctors.doctorName || '',
+//                                     DNUMBER: doctors.scCode || '',
+//                                     DEMAIL: doctors.email || '',
+//                                     DSPEC: doctors.speciality || '',
+//                                     DCITY: doctors.city || '',
+//                                     DSTATE: doctors.state || '',
+//                                     DLOCALITY: doctors.locality || '',
+//                                     DPINCODE: doctors.pincode || '',
+//                                     DDOC: moment(doctors.doc).format('DD-MM-YYYY') || '',
+//                                 }
+//                                 detailPatientlist.push(report);
+//                             }
 //                         }
 //                     }
 //                 }
@@ -924,17 +972,16 @@ const handleExcelsheetUpload = async (req, res) => {
 //     }
 // }
 
-
 const handleDetailReportAdminPanel = async (req, res) => {
     try {
         const adminId = req.params.id;
 
-        // Check admin id is getting or not..
+        // Check if admin id is provided
         if (!adminId) {
             return res.status(404).send({ message: "Admin ID not found...!!", success: false });
         }
 
-        // Fetch admin data including all related documents
+        // Check if admin exists
         const adminExist = await AdminModel.findById(adminId).populate({
             path: 'Tlm',
             model: 'Tlm',
@@ -947,24 +994,27 @@ const handleDetailReportAdminPanel = async (req, res) => {
                     populate: {
                         path: 'Mrs',
                         model: 'Mr',
+                        populate: {
+                            path: 'Doctors',
+                            model: 'Quiz',
+                        }
                     }
                 }
             }
         });
 
-        // Handle admin not found
         if (!adminExist) {
             return res.status(401).send({ message: "Admin not found..!!!", success: false });
         }
 
-        // Store in empty container...
+        // Store data in an empty container
         const detailPatientlist = [];
 
-        // Loop Data of mr...
-        for (const tlm of adminExist.Tlm) {
-            for (const slm of tlm.Slm) {
-                for (const flm of slm.Flm) {
-                    for (const mrs of flm.Mrs) {
+        // Loop through MRs and associated data
+        adminExist.Tlm.forEach(tlm => {
+            tlm.Slm.forEach(slm => {
+                slm.Flm.forEach(flm => {
+                    flm.Mrs.forEach(mrs => {
                         const report = {
                             AID: adminExist.AdminId || '',
                             ANAME: adminExist.Name || '',
@@ -995,47 +1045,53 @@ const handleDetailReportAdminPanel = async (req, res) => {
                             MHQ: mrs.HQ || '',
                             MBUSINESSUNIT: mrs.BUSINESSUNIT || '',
                             MDOJ: moment(mrs.DOJ, 'DD/MM/YYYY').format('DD-MM-YYYY') || '',
+                            DNAME: '', // Empty doctor name placeholder
+                            DNUMBER: '',
+                            DEMAIL: '',
+                            DSPEC: '',
+                            DCITY: '',
+                            DSTATE: '',
+                            DLOCALITY: '',
+                            DPINCODE: '',
+                            DDOC: '',
                         };
 
-                        // Check if the MR has doctors, if not, add an empty doctor object
-                        if (mrs.Doctors.length === 0) {
-                            report.DNAME = '';
-                            report.DNUMBER = '';
-                            report.DEMAIL = '';
-                            report.DSPEC = '';
-                            report.DCITY = '';
-                            report.DSTATE = '';
-                            report.DLOCALITY = '';
-                            report.DPINCODE = '';
-                            report.DDOC = '';
+                        // Add doctor information if available
+                        if (mrs.Doctors && mrs.Doctors.length > 0) {
+                            mrs.Doctors.forEach(doctors => {
+                                const doctorInfo = {
+                                    DNAME: doctors.doctorName || '',
+                                    DNUMBER: doctors.scCode || '',
+                                    DEMAIL: doctors.email || '',
+                                    DSPEC: doctors.speciality || '',
+                                    DCITY: doctors.city || '',
+                                    DSTATE: doctors.state || '',
+                                    DLOCALITY: doctors.locality || '',
+                                    DPINCODE: doctors.pincode || '',
+                                    DDOC: moment(doctors.doc).format('DD-MM-YYYY') || '',
+                                };
+                                const reportWithDoctor = { ...report, ...doctorInfo };
+                                detailPatientlist.push(reportWithDoctor);
+                            });
                         } else {
-                            // Include doctor details if available
-                            const doctors = mrs.Doctors[0]; // Assuming only one doctor is associated with MR
-                            report.DNAME = doctors.doctorName || '';
-                            report.DNUMBER = doctors.scCode || '';
-                            report.DEMAIL = doctors.email || '';
-                            report.DSPEC = doctors.speciality || '';
-                            report.DCITY = doctors.city || '';
-                            report.DSTATE = doctors.state || '';
-                            report.DLOCALITY = doctors.locality || '';
-                            report.DPINCODE = doctors.pincode || '';
-                            report.DDOC = moment(doctors.doc).format('DD-MM-YYYY') || '';
+                            // Add MR without doctor
+                            detailPatientlist.push(report);
                         }
+                    });
+                });
+            });
+        });
 
-                        detailPatientlist.push(report);
-                    }
-                }
-            }
-        }
-
-        // Send the response of loop data...
+        // Send the response
         res.status(201).json(detailPatientlist);
 
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Internal Server Error", success: false });
     }
-}
+};
+
+
 
 
 
