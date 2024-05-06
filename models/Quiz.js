@@ -20,7 +20,7 @@ const doctorSchema = mongoose.Schema({
 
   email: {
     type: String,
-    unique: true
+    // unique: true
   },
   pincode: String,
 

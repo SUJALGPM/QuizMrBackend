@@ -1067,6 +1067,67 @@ const handleMrUpdate = async (req, res) => {
   }
 };
 
+const handleDashboardScore = async (req, res) => {
+  try {
+    // Fetch all quizzes with their associated doctor details
+    const quizzes = await Quiz.find();
+
+    // Create an object to group results by category name
+    const categoryData = {};
+
+    // Loop through the quizzes and their categories to group data by category
+    quizzes.forEach((quiz) => {
+      // Get the doctor's name
+      const doctorName = quiz.doctorName;
+
+      // Loop through each quiz category for this quiz
+      quiz.quizCategories.forEach((category) => {
+        const { categoryName, TotalPoints } = category;
+
+        // If this categoryName doesn't exist in categoryData, create an entry
+        if (!categoryData[categoryName]) {
+          categoryData[categoryName] = [];
+        }
+
+        // Push the doctor's name and total points to the respective category array
+        categoryData[categoryName].push({
+          doctorName,
+          TotalPoints,
+        });
+      });
+    });
+
+    // Sort each category's doctor entries by TotalPoints and then by doctor's name in ascending order
+    Object.keys(categoryData).forEach((category) => {
+      categoryData[category].sort((a, b) => {
+        if (b.TotalPoints === a.TotalPoints) {
+          // If TotalPoints are equal, sort by doctor's name
+          return a.doctorName.localeCompare(b.doctorName);
+        }
+        // Sort by TotalPoints in descending order
+        return b.TotalPoints - a.TotalPoints;
+      });
+    });
+
+    // Return the shuffled data as a JSON response
+    res.status(200).json({
+      success: true,
+      data: categoryData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching the quiz data.',
+    });
+  }
+}
+
+
+
+
+
+
 module.exports = {
   createMr,
   loginMr,
@@ -1085,4 +1146,5 @@ module.exports = {
   handleAdminMrs,
   handleGetMrById,
   handleMrUpdate,
+  handleDashboardScore
 };
