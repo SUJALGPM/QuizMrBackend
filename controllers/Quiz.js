@@ -45,6 +45,7 @@ const axios = require("axios");
 //   }
 // };
 
+
 exports.postDrData = async (req, res) => {
 
   const { doctorName, speciality, email, city, state, mrId, scCode, locality, pincode, date } = req.body;
@@ -60,10 +61,10 @@ exports.postDrData = async (req, res) => {
   if (doctor) return res.status(400).json({ message: "Same Number is found in the database" });
 
   try {
-    const doctorEmailCheck = await Quiz.findOne({ email: email });
-    if (doctorEmailCheck) {
-      return res.status(501).send({ message: "Doctor Email must be unique", success: false });
-    }
+    // const doctorEmailCheck = await Quiz.findOne({ email: email });
+    // if (doctorEmailCheck) {
+    //   return res.status(501).send({ message: "Doctor Email must be unique", success: false });
+    // }
 
     const newDoctor = new Quiz({
       doctorName: doctorName,
