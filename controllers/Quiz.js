@@ -820,16 +820,21 @@ exports.handleUserCategoryWithQuestion = async (req, res) => {
       console.error(error);
     }
 
+    // Helper function to convert a string to camel case
+    function toCamelCase(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
     const onlyFourActiveQuestions = await Promise.all(
       OnlyActiveCategories.map(async (Category) => {
-        const category = Category.name;
-        console.log({ category });
+        // const category = Category.name;
+        const category = toCamelCase(Category.name);
 
         try {
           const response = await axios.get(
             `https://quizadminbackend-wg1y.onrender.com/api/questionsfour?category=${category}`
           );
-          return response.data; // Return the data directly
+          return response.data;
         } catch (error) {
           console.error(error);
         }
